@@ -3,6 +3,7 @@ package com.daasuu.epf;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.daasuu.epf.chooser.EConfigChooser;
 import com.daasuu.epf.contextfactory.EContextFactory;
@@ -79,6 +80,13 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
 
         // Log.d(TAG, "onMeasure viewWidth = " + viewWidth + " viewHeight = " + viewHeight);
 
+         Log.d("ademolaGl", "getMeasuredWidth =" + getMeasuredWidth() +
+                 " getMeasuredHeight =" + getMeasuredHeight() +
+                 " getWidth"+getWidth() +
+                 " widthMeasureSpec="+widthMeasureSpec +
+                " getSuggestedMinimumWidth="+ getSuggestedMinimumWidth()
+         );
+
         setMeasuredDimension(viewWidth, viewHeight);
 
     }
@@ -96,6 +104,7 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
         // Log.d(TAG, "width = " + width + " height = " + height + " unappliedRotationDegrees = " + unappliedRotationDegrees + " pixelWidthHeightRatio = " + pixelWidthHeightRatio);
         videoAspect = ((float) width / height) * pixelWidthHeightRatio;
+        Log.d("ademolaGlVidSize", " width="+width+" height="+height);
         // Log.d(TAG, "videoAspect = " + videoAspect);
         requestLayout();
     }
