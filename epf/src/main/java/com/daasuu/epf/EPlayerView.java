@@ -72,14 +72,14 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
 
         if (contentWidth != 0 && contentHeight != 0 && parentHeight != 0 && parentWidth != 0) {
             switch (glResizeMode) {
-                case GLResizeMode.RESIZE_FIT_WIDTH:
+                case RESIZE_FIT_WIDTH:
                     newHeight = (contentHeight * parentWidth) / contentWidth;
                     break;
-                case GLResizeMode.RESIZE_FIT_HEIGHT:
+                case RESIZE_FIT_HEIGHT:
                     newWidth = (contentWidth * parentHeight) / contentHeight;
                     break;
-                case GLResizeMode.RESIZE_CONTAIN:
-                case GLResizeMode.RESIZE_NONE:
+                case RESIZE_CONTAIN:
+                case RESIZE_NONE:
                     newWidth = parentWidth;
                     newHeight = (contentHeight * newWidth) / contentWidth;
 
@@ -88,7 +88,7 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
                         newWidth = (contentWidth * newHeight) / contentHeight;
                     }
                     break;
-                case GLResizeMode.RESIZE_COVER:
+                case RESIZE_COVER:
                     newWidth = (contentWidth * parentHeight) / contentHeight;
                     newHeight = (contentHeight * parentWidth) / contentWidth;
 
