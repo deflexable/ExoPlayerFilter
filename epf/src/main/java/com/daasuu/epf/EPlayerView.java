@@ -3,13 +3,13 @@ package com.daasuu.epf;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.daasuu.epf.chooser.EConfigChooser;
 import com.daasuu.epf.contextfactory.EContextFactory;
 import com.daasuu.epf.filter.GlFilter;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.daasuu.epf.GLResizeMode;
 
 /**
  * Created by sudamasayuki on 2017/05/16.
@@ -20,9 +20,10 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
 
     private final EPlayerRenderer renderer;
     private SimpleExoPlayer player;
-
-    private float videoAspect = 1f;
-    private PlayerScaleType playerScaleType = PlayerScaleType.RESIZE_FIT_WIDTH;
+    
+    private GLResizeMode glResizeMode = GLResizeMode.RESIZE_NONE;
+    int contentWidth = 0;
+    int contentHeight = 0;
 
     public EPlayerView(Context context) {
         this(context, null);
@@ -53,9 +54,9 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
     public void setGlFilter(GlFilter glFilter) {
         renderer.setGlFilter(glFilter);
     }
-
-    public void setPlayerScaleType(PlayerScaleType playerScaleType) {
-        this.playerScaleType = playerScaleType;
+    
+    public void setResizeMode(GLResizeMode glResizeMode) {
+        this.glResizeMode = glResizeMode;
         requestLayout();
     }
 
@@ -63,32 +64,44 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int measuredWidth = getMeasuredWidth();
-        int measuredHeight = getMeasuredHeight();
+        int parentWidth = getMeasuredWidth();
+        int parentHeight = getMeasuredHeight();
 
-        int viewWidth = measuredWidth;
-        int viewHeight = measuredHeight;
+        int newWidth = parentWidth;
+        int newHeight = parentHeight;
 
-        switch (playerScaleType) {
-            case RESIZE_FIT_WIDTH:
-                viewHeight = (int) (measuredWidth / videoAspect);
-                break;
-            case RESIZE_FIT_HEIGHT:
-                viewWidth = (int) (measuredHeight * videoAspect);
-                break;
+        if (contentWidth != 0 && contentHeight != 0 && parentHeight != 0 && parentWidth != 0) {
+            switch (glResizeMode) {
+                case GLResizeMode.RESIZE_FIT_WIDTH:
+                    newHeight = (contentHeight * parentWidth) / contentWidth;
+                    break;
+                case GLResizeMode.RESIZE_FIT_HEIGHT:
+                    newWidth = (contentWidth * parentHeight) / contentHeight;
+                    break;
+                case GLResizeMode.RESIZE_CONTAIN:
+                case GLResizeMode.RESIZE_NONE:
+                    newWidth = parentWidth;
+                    newHeight = (contentHeight * newWidth) / contentWidth;
+
+                    if (newHeight > parentHeight) {
+                        newHeight = parentHeight;
+                        newWidth = (contentWidth * newHeight) / contentHeight;
+                    }
+                    break;
+                case GLResizeMode.RESIZE_COVER:
+                    newWidth = (contentWidth * parentHeight) / contentHeight;
+                    newHeight = (contentHeight * parentWidth) / contentWidth;
+
+                    if (newWidth < parentWidth || newHeight < parentHeight) {
+                        int scale = (parentWidth / newWidth);
+                        newWidth = newWidth * scale;
+                        newHeight = newHeight * scale;
+                    }
+                    break;
+            }
         }
 
-        // Log.d(TAG, "onMeasure viewWidth = " + viewWidth + " viewHeight = " + viewHeight);
-
-         Log.d("ademolaGl", "getMeasuredWidth =" + getMeasuredWidth() +
-                 " getMeasuredHeight =" + getMeasuredHeight() +
-                 " getWidth"+getWidth() +
-                 " widthMeasureSpec="+widthMeasureSpec +
-                " getSuggestedMinimumWidth="+ getSuggestedMinimumWidth()
-         );
-
-        setMeasuredDimension(viewWidth, viewHeight);
-
+        setMeasuredDimension(newWidth, newHeight);
     }
 
     @Override
@@ -102,10 +115,8 @@ public class EPlayerView extends GLSurfaceView implements VideoListener {
 
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-        // Log.d(TAG, "width = " + width + " height = " + height + " unappliedRotationDegrees = " + unappliedRotationDegrees + " pixelWidthHeightRatio = " + pixelWidthHeightRatio);
-        videoAspect = ((float) width / height) * pixelWidthHeightRatio;
-        Log.d("ademolaGlVidSize", " width="+width+" height="+height);
-        // Log.d(TAG, "videoAspect = " + videoAspect);
+        contentWidth = width;
+        contentHeight = height;
         requestLayout();
     }
 
